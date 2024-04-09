@@ -1,0 +1,40 @@
+LVADSUSR166
+
+
+1. SELECT DISTINCT(`CustomerID`) FROM `customerinteractions` WHERE DataUsed > (SELECT AVG(DataUsed) FROM `customerinteractions` WHERE MONTH = "March");
+
+2. SELECT CustomerID, Month, CallDuration FROM customerinteractions WHERE CustomerID = 206; 
+
+3. SELECT CustomerID, Month, MessageCount, DataUsed FROM customerinteractions WHERE CustomerID = 206;
+
+
+4. SELECT ProductTypeID, SUM(TotalSalesAmount) AS TOTAL_SALES FROM quarterlysales GROUP BY 1 ORDER BY 2 DESC;
+
+
+5. SELECT ProductTypeID, TotalSalesAmount FROM quarterlysales WHERE Quarter = 'Q1' ORDER BY TotalSalesAmount DESC LIMIT 1;
+
+
+6. SELECT ProductTypeID, AVG(TotalSalesAmount/UnitsSold) AS `Average Price Per Unit` FROM quarterlysales WHERE Quarter = 'Q2' AND ProductTypeID = 1 GROUP BY 1;
+
+
+7. SELECT Region FROM sectorenergyconsumption
+WHERE EnergySource <> 'Fossil Fuels' AND `Month` = 'March'
+GROUP BY 1 HAVING ConsumptionKWh>(AVG(ConsumptionKWh));
+
+8. SELECT Region, Sector, Month, ConsumptionKWh FROM sectorenergyconsumption; 
+
+9. SELECT EnergySource, ConsumptionKWh
+FROM sectorenergyconsumption
+WHERE EnergySource NOT IN (SELECT EnergySource, SUM(ConsumptionKWh) FROM sectorenergyconsumption 
+WHERE `Month` = 'February' AND EnergySource <> 'Fossil Fuels'
+GROUP BY 1);
+
+10. SELECT CustomerName FROM insuranceactivities
+WHERE FeedbackScore > 8 OR ClaimsCount > 2 AND Investigation = 'No' ;
+
+11. SELECT CustomerName, SUM(AnnualPremium) AS TOTAL 
+FROM insuranceactivities
+WHERE FeedbackScore>8 AND ClaimsCount>0
+GROUP BY 1;
+
+12. 
