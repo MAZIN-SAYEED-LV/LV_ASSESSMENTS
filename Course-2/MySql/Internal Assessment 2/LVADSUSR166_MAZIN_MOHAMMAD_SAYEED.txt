@@ -1,0 +1,86 @@
+Q1)
+SELECT machine_id FROM l1_maintenance_records WHERE cost>(SELECT AVG(cost) FROM l1_maintenance_records WHERE month(maintenance_date) = 3 AND year(maintenance_date)= 2024) AND month(maintenance_date)= 3 AND year(maintenance_date)= 2024;
+
+
+
+Q2) 
+SELECT maintenance_type, COUNT(*) AS `Frequency of Each Maintenance Type` FROM l1_maintenance_records WHERE month(maintenance_date) = 3 AND year(maintenance_date) = 2024 GROUP BY 1 ORDER BY 2 DESC;
+
+
+
+Q3)
+SELECT technician_name, COUNT(*) AS `Number of Tasks Performed` FROM l1_maintenance_records GROUP BY 1 ORDER BY 2 DESC LIMIT 1;
+
+SELECT technician_name, ROUND(AVG(cost),2) AS `Average Cost Per Task in March '24` FROM l1_maintenance_records WHERE month(maintenance_date) = 3 AND year(maintenance_date) = 2024 GROUP BY 1 ORDER BY 2 DESC LIMIT 1;
+
+
+
+Q4) 
+SELECT product_id,  ROUND(AVG(incident_count_pre_update - incident_count_post_update),2) AS `Number of Cases Reduced` FROM l2_updates GROUP BY 1;
+
+
+
+Q5)
+SELECT update_id, user_feedback_score FROM l2_updates WHERE (incident_count_pre_update - incident_count_post_update) NOT IN (SELECT MAX(incident_count_pre_update - incident_count_post_update) AS `Number of Cases Reduced` FROM l2_updates) ORDER BY 2 DESC LIMIT 1;
+
+
+Q6)
+SELECT product_id,  ROUND(AVG((incident_count_pre_update - incident_count_post_update)/incident_count_pre_update)*100,2) AS `% of Cases Reduced` FROM l2_updates GROUP BY 1 ORDER BY 2 LIMIT 1;
+
+-- We can see that almost half of the products are faulty so to counter that we can reallocate resources from the products who had high improvements which is shown below
+
+SELECT product_id,  ROUND(AVG((incident_count_pre_update - incident_count_post_update)/incident_count_pre_update)*100,2) AS `% of Cases FIXED` FROM l2_updates GROUP BY 1 ORDER BY 2 DESC;
+
+
+
+Q7)
+CREATE VIEW `Comprehensive Patient Records` AS
+SELECT p.patient_name, v.facility_id, v.reason_for_visit, t.outcome
+FROM l3_patients p
+JOIN l3_visits v USING (patient_id)
+JOIN l3_treatments t USING (visit_id)
+GROUP BY 1
+HAVING COUNT(v.patient_id)>1;
+
+SELECT * FROM `Comprehensive Patient Records`;
+
+-- SINCE, THERE ARE NO RECURRING PATIENTS, NO RECORDS WILL BE SELECTED
+
+
+
+Q8)
+SELECT f.facility_id, f.facility_name FROM l3_facilities f JOIN l3_visits v ON f.facility_id = v.facility_id WHERE v.reason_for_visit = 'Emergency' AND MONTH(v.visit_date) = 3;
+
+
+
+Q9)
+SELECT p.insurance_provider FROM l3_patients p JOIN l3_visits v ON p.patient_id = v.patient_id JOIN l3_treatments t on v.visit_id = t.visit_id WHERE t.outcome = 'Complicated' AND  QUARTER(visit_date) = 1;
+
+
+
+Q10)
+SELECT p.product_name, p.category, SUM(s.quantity) 
+FROM l4_products p
+JOIN l4_sales s on p.product_id = s.product_id
+WHERE MONTH(s.sale_date) = 3 AND YEAR(s.sale_date) = 2024
+GROUP BY 1,2
+ORDER BY 3 DESC;
+
+
+
+Q11)
+CREATE VIEW `Regional Sales Analysis` AS
+SELECT s.store_id, s.store_name, s.region, SUM(sa.quantity * p.price) AS `Total Sales` 
+FROM l4_stores s
+JOIN l4_sales sa ON s.store_id = sa.store_id
+JOIN l4_products p ON sa.product_id = p.product_id
+WHERE QUARTER(sa.sale_date) = 1 
+GROUP BY 1,2,3
+ORDER BY 4 DESC;
+
+SELECT * FROM `Regional Sales Analysis` LIMIT 1;
+
+
+
+Q12)
+SELECT * FROM l4_products FULL JOIN l4_sales;
