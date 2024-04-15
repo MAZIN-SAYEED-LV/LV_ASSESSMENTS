@@ -1,0 +1,97 @@
+-- 1
+SELECT p.product_category, ROUND(AVG(s.sales_amount),2) AS `Average Sales Amount Per Category In The Past Month` FROM products p JOIN sales_records s USING (product_id) WHERE DAY(s.sales_date) <= 30 GROUP BY p.product_category;
+
+
+
+-- 2
+SELECT s.product_id, p.product_name, RANK() OVER (ORDER BY s.sales_amount DESC) AS `Top Selling Products` FROM  sales_records s JOIN products p USING (product_id) LIMIT 3;
+
+
+
+-- 3 
+SELECT c.customer_id, c.customer_name, SUM(s.sales_amount) AS `Total Contribution`, RANK() OVER (ORDER BY SUM(s.sales_amount) DESC) AS `Most Valuable Customers` FROM  sales_records s JOIN customers c USING (customer_id) GROUP BY c.customer_id;
+
+
+
+-- 4
+SELECT DISTINCT(c.customer_id), c.customer_name, CASE WHEN DAY(s.sales_date) <= 120 AND DAY(s.sales_date) <= 180 THEN 'Consistent Buyers' ELSE 'Occasional Buyers' END AS `Customer Type` FROM customers c JOIN sales_records s USING (customer_id);
+
+
+
+-- 5
+SELECT flight_id, flight_number, departure_airport, arrival_airport, ROUND(AVG(base_price),2) `Average Ticket Price` FROM flights GROUP BY 1,2,3,4;
+
+
+
+-- 6
+SELECT f.flight_number, f.departure_date, COUNT(t.flight_id) `Total Tickets Sold` FROM flights f JOIN tickets t USING (flight_id) WHERE DAY(f.departure_date) <= 30 GROUP BY 1,2 ORDER BY 3 DESC;
+
+
+
+-- 7
+SELECT p.passenger_name, SUM(t.ticket_price) `Total Amount Spent`, p.frequent_flyer_status FROM passengers p JOIN tickets t USING (passenger_id) GROUP BY 1,3 ORDER BY 2 DESC LIMIT 5;
+
+
+
+-- 8
+SELECT MONTHNAME(ticket_date) MONTH, COUNT(ticket_id) `Number of tickets SOLD`  FROM tickets GROUP BY 1 ORDER BY 2 DESC LIMIT 1;
+
+
+
+-- 9
+SELECT p.player_id, g.game_genre, ROUND(AVG(abs((ps.play_date - p.registration_date)*1440)),0) `Average Number of Minutes Played` FROM players p JOIN playerscores ps USING (player_id) JOIN games g USING (game_id) GROUP BY 1,2 ORDER BY 3 DESC;
+
+
+
+-- 10
+SELECT g.game_name, COUNT(ps.player_id) `Number Of Players` FROM games g JOIN playerscores ps USING (game_id) GROUP BY 1 ORDER BY 2 DESC LIMIT 3;  
+
+
+
+-- 11
+SELECT ps.game_id, g.game_name, ROUND(AVG(ps.score),2) `Average Score`, ROUND(MAX(ps.score),2) `Highest Score`, COUNT(ps.player_id) `Total Number of Players` FROM playerscores ps JOIN games g USING (game_id) GROUP BY 1,2;
+
+
+
+-- 12
+SELECT DISTINCT(p.player_name), p.registration_date, ps.play_date FROM players p JOIN playerscores ps USING (player_id) WHERE (ps.play_date - p.registration_date) = 30;
+
+
+
+-- 13
+SELECT d.doctor_id, d.doctor_name, SUM(t.cost) `Total Cost of Treatment` FROM doctors d JOIN treatments t USING (doctor_id) GROUP BY 1,2 ORDER BY 3 DESC LIMIT 5;
+
+
+
+-- 14
+SELECT treatment_name, SUM(cost) `Revenue Generated` FROM treatments GROUP BY 1 ORDER BY 2 DESC;
+
+
+
+-- 15
+SELECT patient_id, patient_name, admission_date, discharge_date FROM patients WHERE discharge_date<admission_date AND (admission_date-discharge_date) < 30 ORDER BY admission_date ASC;
+
+
+
+-- 16
+SELECT gender, diagnosis, ROUND(AVG(discharge_date-admission_date),0) LOS FROM patients GROUP BY 1,2;
+
+
+
+-- 17
+SELECT c.department, e.semester, ROUND(AVG(e.grade),2) `Average Grade For Department Per Semester` FROM courses c JOIN enrollments e USING (course_id) GROUP BY 1,2 ORDER BY 1,2;
+
+
+
+-- 18
+SELECT major, COUNT(student_id) `Total Number of Students Enrolled`, enrollment_year FROM students GROUP BY 1,3 ORDER BY 2 DESC LIMIT 5; 
+
+
+
+-- 19
+SELECT s.student_id, s.student_name, e.semester, SUM(c.credits) `Total Credits Earned in the Semester` FROM students s JOIN enrollments e USING (student_id) JOIN courses c USING (course_id) GROUP BY 1,2,3 HAVING SUM(c.credits) >= 50;
+
+
+
+-- 20
+SELECT c.course_name, s.enrollment_year, COUNT(e.student_id) `Number of Students` FROM courses c JOIN enrollments e USING (course_id) JOIN students s USING (student_id) GROUP BY 1,2 ORDER BY 3 DESC  LIMIT 3;
